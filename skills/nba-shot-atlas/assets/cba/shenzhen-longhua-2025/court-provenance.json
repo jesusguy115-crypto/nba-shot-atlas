@@ -1,0 +1,17 @@
+{
+  "venue": "深圳龙华文体中心，2025—26常规赛使用过的主场",
+  "construction": "基于当季转播参考重绘；完整FIBA28x15米，非官方地板矢量图或场馆精确扫描",
+  "reference_image": "https://i11.hoopchina.com.cn/news-editor/bafa12c93465bbd3222f780f46e2d898_w_849_h_504_.png",
+  "venue_source": "https://www.szlhq.gov.cn/bmxxgk/whgdlytyj/dtxx_168174/gzdt_168175/content/post_12554195.html",
+  "logo_source": "cbastats页面球队与联赛资料",
+  "court_texture_box": [
+    240,
+    3600,
+    180,
+    1980
+  ],
+  "dimensions_m": [
+    28,
+    15
+  ]
+}

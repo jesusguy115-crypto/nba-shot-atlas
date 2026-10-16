@@ -1,4 +1,4 @@
 interface:
-  display_name: "NBA 投篮档案"
-  short_description: "中文或英文姓名，选择单季或全部赛季，制作真实坐标投篮轨迹与稳定近景视频"
-  default_prompt: "使用 $nba-shot-atlas 制作球员投篮档案，先识别我给出的中英文名字，再让我选择单个赛季或全部可用赛季。"
+  display_name: "NBA / CBA 投篮档案"
+  short_description: "NBA/CBA中英文球员姓名，选择赛季，复用缓存制作真实坐标轨迹及区域总结"
+  default_prompt: "使用 $nba-shot-atlas 制作NBA或CBA球员投篮档案，先识别我给出的中英文名字，再让我选择单个赛季或全部可用赛季。"

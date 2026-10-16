@@ -42,7 +42,8 @@ def main():
   assert r.plate.g.COURT_LIT.size==r.plate.g.COURT.size, 'The full court texture must remain intact.'
   assert r.plate.g.CW==r.plate.g.COURT.width, 'Half-court framing must not crop the physical floor.'
  half=r.JOB.get('court_scope')=='half'
- assert r.plate.BASKETS==(((0.,False),) if half else ((0.,False),(83.5,True)))
+ far=(r.JOB['court_dimensions_m'][0]-3.15)/.3048 if r.JOB.get('league')=='CBA' else 83.5
+ assert r.plate.BASKETS==(((0.,False),) if half else ((0.,False),(far,True)))
  report.update(animation_mode=r.JOB.get('animation_mode','shot_by_shot'),source_fps=r.FPS,source_duration=r.DURATION,arc_origin_projected_error_px=0,orbit_degrees=r.JOB['orbit_degrees'],court_scope=r.JOB.get('court_scope','full'),two_baskets=not half)
  if a.mode in {'check','stills'}:
   for t in [0,r.DURATION*.26,r.DURATION*.52,r.DURATION*.78,r.DURATION-1]:r.frame(t).save(a.output/f'frame-{t:.2f}.png')
