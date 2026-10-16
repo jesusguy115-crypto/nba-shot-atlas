@@ -1,0 +1,11 @@
+{
+  "preset": "Michael Jordan 1997–98",
+  "shot_data": "https://github.com/sportsdataverse/sportsdataverse-data/releases/tag/nba_stats_shots",
+  "schedule_data": "https://github.com/sportsdataverse/sportsdataverse-data/releases/tag/nba_stats_schedules",
+  "checked_at": "2026-10-15",
+  "court": "Existing court reconstruction from this conversation; reference reconstruction, not an official scan or exact reproduction.",
+  "portrait": "Existing NBA Jordan headshot from this conversation.",
+  "team_logo": "Existing Bulls logo asset from this conversation.",
+  "rights": "Personal workflow assets; player/team images retain their original rights. No blanket redistribution license is granted for those assets.",
+  "fonts": "OFL notices in jordan-template/fonts."
+}

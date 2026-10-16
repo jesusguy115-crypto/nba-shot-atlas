@@ -1,0 +1,35 @@
+{
+  "player_id": 893,
+  "name_zh": "迈克尔·乔丹",
+  "name_en": "MICHAEL JORDAN",
+  "season_label": "1997—98赛季",
+  "phase_label": "常规赛 ＋ 季后赛",
+  "team_label": "BULLS",
+  "credit": "created by 篮坛巨编",
+  "source_duration": 85,
+  "source_fps": 30,
+  "delivery_duration": 65,
+  "delivery_fps": 60,
+  "expected_attempts": 2419,
+  "expected_made": 1124,
+  "expected_games": 103,
+  "bar_scale": 1500,
+  "portrait_image": "jordan.png",
+  "portrait_crop": [
+    340,
+    0,
+    700,
+    470
+  ],
+  "court_image": "court_1998_reconstruction.jpg",
+  "logo_image": "bulls.png",
+  "court_texture_box": [
+    320,
+    4080,
+    320,
+    2320
+  ],
+  "orbit_degrees": 360,
+  "orbit_start_degrees": -8,
+  "dolly_in_percent": 5.5
+}
