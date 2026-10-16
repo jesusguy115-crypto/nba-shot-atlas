@@ -8,6 +8,7 @@ def main():
  if a.destination.exists():raise FileExistsError('Choose a new project directory; existing work is not overwritten.')
  template=ROOT/'assets/jordan-template';job=json.loads((template/'job.json').read_text());job.update(json.loads(a.job.read_text()) if a.job else {})
  if job['player_id']!=893 and not all([a.shots,a.court,a.portrait,a.logo,a.job]):raise ValueError('Other players require their own shots, court, portrait, logo and job; never silently render Jordan assets.')
+ job.setdefault('safe_area',{'top':96,'bottom':144})
  shutil.copytree(template,a.destination)
  if a.shots:shutil.copy2(a.shots,a.destination/'shots.csv')
  for source,key in [(a.court,'court_image'),(a.portrait,'portrait_image'),(a.logo,'logo_image')]:

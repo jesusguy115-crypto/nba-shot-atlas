@@ -14,6 +14,9 @@ def main():
    import imageio_ffmpeg
    ff=imageio_ffmpeg.get_ffmpeg_exe()
   os.environ['FFMPEG_BINARY']=ff
+ job=json.loads((project/'job.json').read_text())
+ if job.get('approved_layout_version')!='2026-10-17':subprocess.run([sys.executable,str(Path(__file__).with_name('apply_approved_layout.py')),str(project)],check=True)
+ shutil.copy2(Path(__file__).with_name('approved_sidebar.py'),project/'approved_sidebar.py')
  r=load(project);import numpy as np
  from validate_data import inspect
  report=inspect(project/'shots.csv',r.JOB)

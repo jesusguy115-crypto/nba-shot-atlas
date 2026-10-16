@@ -31,5 +31,15 @@
   ],
   "orbit_degrees": 360,
   "orbit_start_degrees": -8,
-  "dolly_in_percent": 5.5
+  "dolly_in_percent": 5.5,
+  "safe_area": {
+    "top": 96,
+    "bottom": 144
+  },
+  "league": "NBA",
+  "height_cm": 198,
+  "weight_kg": 98,
+  "birth_date": "1963-02-17",
+  "age_as_of": "1998-06-14",
+  "league_season_number": 13
 }

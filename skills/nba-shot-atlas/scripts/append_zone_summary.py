@@ -5,6 +5,7 @@ from functools import lru_cache
 import argparse,csv,json,math,subprocess,os
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
+from safe_area import image as safe_image,video_filter,settings as safe_settings
 
 NAMES=['篮下','禁区短两分','左侧中距离','正面中距离','右侧中距离','左翼三分','弧顶三分','右翼三分','左底角三分','右底角三分']
 def classify(row):
@@ -25,11 +26,12 @@ def ease(t):
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('project',type=Path);ap.add_argument('--video',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--league-shots',type=Path,nargs='+',required=True);ap.add_argument('--preview-only',action='store_true');ap.add_argument('--tail-seconds',type=float,default=6);a=ap.parse_args()
  p=a.project.resolve();a.video=a.video.resolve();a.output=a.output.resolve();a.output.parent.mkdir(parents=True,exist_ok=True)
- job=json.loads((p/'job.json').read_text());rows=list(csv.DictReader(open(p/'shots.csv',encoding='utf-8-sig')))
+ job=json.loads((p/'job.json').read_text());safe_top,safe_bottom=safe_settings(job);rows=list(csv.DictReader(open(p/'shots.csv',encoding='utf-8-sig')))
  import imageio_ffmpeg
  ff=os.environ.get('FFMPEG_BINARY') or imageio_ffmpeg.get_ffmpeg_exe()
  work=p/'summary-work';work.mkdir(exist_ok=True)
- fps=int(job.get('delivery_fps',60));base_seconds=float(job['delivery_duration']);W,H=1920,1080;S=2;SIDEBAR=int(job.get('sidebar_width',736));BG='#19191b'
+ if job.get('approved_layout_version')!='2026-10-17':raise ValueError('Regenerate trajectory with the current approved layout before appending a summary')
+ fps=int(job.get('delivery_fps',60));base_seconds=float(job['delivery_duration']);W,H=1920,1080;S=2;SIDEBAR=int(job.get('sidebar_width',736))+int(job.get('layout_offset_x',69));BG='#19191b'
  subprocess.run([ff,'-y','-v','error','-ss',str(base_seconds-1/fps),'-i',str(a.video),'-frames:v','1',str(work/'last.png')],check=True)
  base=Image.open(work/'last.png').convert('RGB');BG=base.getpixel((SIDEBAR-20,10));frozen_left=base.crop((0,0,SIDEBAR,H));ImageDraw.Draw(frozen_left).rectangle((SIDEBAR-6,0,SIDEBAR,H),fill=BG)
  base.paste(frozen_left,(0,0))
@@ -146,8 +148,17 @@ def main():
  full=chart.convert('RGBA')
  for card in cards:full=Image.alpha_composite(full,card)
  full=full.convert('RGB').resize((W,H),Image.Resampling.LANCZOS);full.paste(frozen_left,(0,0));full.save(work/'总结页.png')
+ # Render the approved static half-court at the same layout as zone atlas.
+ from approved_sidebar import metadata
+ summary_job=metadata(job,rows);summary_job['portrait_image']=str((p/job['portrait_image']).resolve());summary_job['logo_image']=str((p/job['logo_image']).resolve())
+ # Older projects may not yet contain researched profile fields: show blanks, never fabricate.
+ summary_job.setdefault('height_cm',None);summary_job.setdefault('weight_kg',None)
+ summary_path=work/'approved-job.json';summary_path.write_text(json.dumps(summary_job,ensure_ascii=False,indent=2))
+ subprocess.run([sys.executable,str(Path(__file__).with_name('render_static_summary.py')),'--job',str(summary_path),'--shots',str(p/'shots.csv'),'--league-shots',*[str(v) for v in a.league_shots],'--output',str(work/'approved-static')],check=True)
+ approved=Image.open(work/'approved-static/总结页.png').convert('RGB');approved.paste(frozen_left,(0,0));approved.save(work/'总结页.png')
+ chart_rgb=approved.resize((W*S,H*S),Image.Resampling.LANCZOS).convert('RGBA');cards=[]
  # Keep the entire source sidebar pixel-for-pixel stable throughout the reveal.
- chart_rgb=chart.convert('RGBA');base_big=base.resize((W*S,H*S),Image.Resampling.LANCZOS)
+ base_big=base.resize((W*S,H*S),Image.Resampling.LANCZOS)
  def frame(t):
   # A real widening panel: its entire right edge travels across the old scene.
   reveal=ease(t/1.5);edge=round(SIDEBAR+(W-SIDEBAR)*reveal)
@@ -187,6 +198,6 @@ def main():
  # Re-encode the two verified pieces together for consistent frame timing and codec.
  subprocess.run([ff,'-y','-v','error','-i',str(a.video),'-i',str(tail),'-filter_complex','[0:v][1:v]concat=n=2:v=1:a=0[v]','-map','[v]','-an','-c:v','libx264','-preset','fast','-crf','13','-pix_fmt','yuv420p','-movflags','+faststart',str(a.output)],check=True)
  subprocess.run([ff,'-v','error','-i',str(a.output),'-f','null','-'],check=True)
- report={'source_seconds':base_seconds,'summary_seconds':a.tail_seconds,'total_seconds':base_seconds+a.tail_seconds,'made':int(counts[:,0].sum()),'attempts':len(rows),'sidebar_preserved_every_tail_frame':True,'fine_regions_match_sidebar':True,'fine_region_count':10,'league_comparison':True,'league_attempts':int(league.sum()),'no_fixed_seam':True,'fully_decoded':True}
+ report={'source_seconds':base_seconds,'summary_seconds':a.tail_seconds,'total_seconds':base_seconds+a.tail_seconds,'made':int(counts[:,0].sum()),'attempts':len(rows),'sidebar_preserved_every_tail_frame':True,'fine_regions_match_sidebar':True,'fine_region_count':10,'league_comparison':True,'league_attempts':int(league.sum()),'no_fixed_seam':True,'fully_decoded':True,'safe_area':{'top':safe_top,'bottom':safe_bottom,'reference_height':1080}}
  (work/'validation.json').write_text(json.dumps(report,ensure_ascii=False,indent=2));print(json.dumps(report,ensure_ascii=False));print(a.output)
 if __name__=='__main__':main()

@@ -73,3 +73,14 @@ python scripts/append_zone_summary.py <project> --video <轨迹MP4> --league-sho
 展开必须能看出左栏右边缘向右移动（默认1.5秒），移动投影仅在转场中存在。原栏边缘竖线须清除，展开背景取样原左栏底色，最终画面无竖缝；左侧内容和位置全程保留。
 
 右侧总结页标题固定为“区域投篮”；标题下不放赛季、赛事类型和左右方向说明，原左栏赛季信息保留。
+
+
+## 审定样式与执行
+
+最新样式以SKILL.md“最新审定排版与安全区”和assets/approved-preview.png（静态图）为准。保留两行赛季信息、四列总计、正常宽度英文名、宽松柱状图、不显示右侧标题/右上Logo。1080顶部96/底部144，横向内容重排并右移69，不能再使用全图等比缩小补边。
+
+render_video.py在已有configure/半场/场边/稳定相机及CBA适配之后，自动调用apply_approved_layout.py，复用approved_sidebar.py绘制每一帧同款侧栏，只给3D投影做固定安全区校准。同一相机投影同时驱动轨迹和圈叉，禁止每帧追随投篮云。
+
+完整job补充height_cm/weight_kg/birth_date/age_as_of/league_season_number，scope_label、record_label、date_label可显式给定真实口径；没有资料时模板只显示—，agent应在正式交付前核实补全。球龄按真实参加联盟赛季计，非机械年份差。
+
+append_zone_summary.py/append_cba_summary.py调用render_static_summary.py使用同款十区图，左栏按源片冻结；新成片已留白，不再调用safe_area.py给整段二次缩小。旧源片须从项目重新生成，不能混用旧侧栏与新总结。只交轨迹时render_video.py输出也已包含安全区。每帧的source尺寸/FPS不变。
