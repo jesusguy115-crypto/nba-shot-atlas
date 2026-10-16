@@ -2,7 +2,7 @@
 
 ## 数据源
 
-主要缓存为 sportsdataverse/sportsdataverse-data 的 `nba_stats_shots` 与 `nba_stats_schedules` GitHub release。脚本每次读发布清单，不用猜文件名。2026-10-15核验到shots_1997.parquet至shots_2026.parquet，即1996–97至2025–26；这是当时清单，不是永久上限。
+主要缓存为 sportsdataverse/sportsdataverse-data 的 `nba_stats_shots` 与 `nba_stats_schedules` GitHub release。脚本每次读发布清单，不用猜文件名。2026-10-15核验到shots_1997.parquet至shots_2026.parquet，即1996-97至2025-26；这是当时清单，不是永久上限。
 
 - https://github.com/sportsdataverse/sportsdataverse-data/releases/tag/nba_stats_shots
 - https://github.com/sportsdataverse/sportsdataverse-data/releases/tag/nba_stats_schedules
@@ -23,9 +23,9 @@ python scripts/fetch_data.py --person-id 893 --years all --cache <缓存目录> 
 
 只有名字时用用户输入工具提供赛季选择，示例：
 
-> 你想做迈克尔·乔丹的哪个赛季？数据库可覆盖1996–97、1997–98、2001–02、2002–03，或全部可用赛季（1996年前不包含）。
+> 你想做迈克尔·乔丹的哪个赛季？数据库可覆盖1996-97、1997-98、2001-02、2002-03，或全部可用赛季（1996年前不包含）。
 
-不要在给出选项前把“1997–98是最经典”当成用户的选择。若用户选全部，按覆盖清单获取；若给单季，检查有无该球员数据后继续。
+不要在给出选项前把“1997-98是最经典”当成用户的选择。若用户选全部，按覆盖清单获取；若给单季，检查有无该球员数据后继续。
 
 全部赛季须保留season、game_date、game_id、phase、team_id，按日期→比赛→节次→剩余时间倒序排列。总计为所有选中年份的逐球总和。跨队生涯未指定球场时，可用出手最多球队的主场作为统一展示场景并告知；不能声称这代表每个年份的实际主场。
 

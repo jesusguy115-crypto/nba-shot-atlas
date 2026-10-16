@@ -52,7 +52,7 @@ s=s.replace('BAR_WIDTH=372','BAR_WIDTH=634').replace('layer,(80,round(y*S))','la
 a=s.index('def panel(t,n):');b=s.index('_MARKS=None',a)
 s=s[:a]+'''def panel(t,n):
  im=plate.PANEL.copy();d=plate.D(im);m=int(made_prefix[n]);miss=n-m
- row=rows[max(0,n-1)];year=int(row['season']);d.text(48,208,f'{year-1}—{str(year)[-2:]}赛季',25,plate.WHITE,'bold')
+ row=rows[max(0,n-1)];year=int(row['season']);d.text(48,208,f'{year-1}-{str(year)[-2:]}赛季',25,plate.WHITE,'bold')
  d.text(46,340,str(n),92,plate.WHITE,'number')
  d.text(682,351,f'{m/n*100:.1f}%' if n else '0.0%',57,plate.WHITE,'number','rt')
  d.text(313,429,str(m),43,plate.WHITE,'number','rt')

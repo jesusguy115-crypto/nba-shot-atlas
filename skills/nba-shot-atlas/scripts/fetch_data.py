@@ -20,7 +20,7 @@ def manifest(cache,tag,refresh=False):
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--person-id',type=int);ap.add_argument('--years',default='all',help='Season END years, e.g. 1998,2026 or all');ap.add_argument('--cache',type=Path,required=True);ap.add_argument('--output',type=Path);ap.add_argument('--list-seasons',action='store_true');ap.add_argument('--refresh',action='store_true');args=ap.parse_args();args.cache.mkdir(parents=True,exist_ok=True)
  shots=manifest(args.cache,'nba_stats_shots',args.refresh);available=sorted(int(re.fullmatch(r'shots_(\d{4})\.parquet',n)[1]) for n in shots if re.fullmatch(r'shots_(\d{4})\.parquet',n))
- if args.list_seasons:print(json.dumps({'end_years':available,'labels':[f'{y-1}–{str(y)[-2:]}' for y in available]}));return
+ if args.list_seasons:print(json.dumps({'end_years':available,'labels':[f'{y-1}-{str(y)[-2:]}' for y in available]}));return
  if args.person_id is None or args.output is None:ap.error('--person-id and --output are required for extraction')
  import pyarrow.parquet as pq
  import pyarrow.compute as pc

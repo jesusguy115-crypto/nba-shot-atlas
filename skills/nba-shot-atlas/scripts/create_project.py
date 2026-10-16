@@ -12,5 +12,6 @@ def main():
  if a.shots:shutil.copy2(a.shots,a.destination/'shots.csv')
  for source,key in [(a.court,'court_image'),(a.portrait,'portrait_image'),(a.logo,'logo_image')]:
   if source:dest=key+source.suffix;shutil.copy2(source,a.destination/dest);job[key]=dest
+ if 'season_label' in job:job['season_label']=job['season_label'].replace('—','-').replace('–','-')
  (a.destination/'job.json').write_text(json.dumps(job,ensure_ascii=False,indent=2));report=inspect(a.destination/'shots.csv',job);print(json.dumps({'project':str(a.destination),'validation':report},ensure_ascii=False))
 if __name__=='__main__':main()
