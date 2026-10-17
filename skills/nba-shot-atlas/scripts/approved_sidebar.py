@@ -49,31 +49,36 @@ def render(job,rows,counts,n,project,t=0):
  for ch in job['name_en']:
   ImageDraw.Draw(side).text((round(en_x),166*S),ch,font=en_font,fill='#a39fa2',anchor='la')
   en_x+=en_font.getlength(ch)+en_tracking
- for j,(label,value) in enumerate([('身高',(f"{job['height_cm']:g} cm" if job.get('height_cm') is not None else '—')),('体重',(f"{job['weight_kg']:g} kg" if job.get('weight_kg') is not None else '—')),('年龄',f'{age}岁' if age is not None else '—'),(job['league']+'球龄',f"第{job['league_season_number']}季" if job.get('league_season_number') else '—')]):
+ for j,(label,value) in enumerate([('身高',(f"{job['height_cm']:g} cm" if job.get('height_cm') is not None else '—')),('体重',(f"{job['weight_kg']:g} kg" if job.get('weight_kg') is not None else '—')),('年龄',str(age) if age is not None else '—'),(job['league']+'球龄',str(job['league_season_number']) if job.get('league_season_number') else '—')]):
   x=202+j*121
   st(x,205,label,14,'#9e999d');st(x,229,value,23,'#e1dfe0','bold')
   if j<3:line(side,[(x+105,209),(x+105,254)],'#343437',.7)
  hline(281)
- st(48,305,job['season_label'],30,weight='bold');st(682,305,job['record_label'],21,'#d2ced1',anchor='ra')
- st(48,345,job['scope_label'],20,'#b9b4b8');st(682,345,job['date_label'],18,'#b9b4b8',anchor='ra')
- hline(384)
+ # Compact date-only band; the space saved gives the region rows more air.
+ date_label=job['date_label']
+ if '—' in date_label:
+  left,right=map(str.strip,date_label.split('—',1))
+  if len(right)==5 and len(left)>=10:right=left[:5]+right
+  date_label=left+' — '+right
+ st(48,304,'比赛日期：'+date_label,18,'#c6c2c5')
+ hline(345)
  # Four independent columns: attempts, makes, misses, FG percentage.
- st(48,410,job.get('attempt_label','坐标出手' if job.get('missing_coordinate_attempts',0) else '出手'),19,'#aaa6a9')
- poly(side,[(220,418),(229,418),(229,427),(220,427)],'#e52b4a');st(239,410,'命中',19,'#aaa6a9')
- poly(side,[(386,418),(395,418),(395,427),(386,427)],'#ede9e3');st(405,410,'未中',19,'#aaa6a9')
- st(550,410,'投篮命中率',19,'#aaa6a9')
- for x in [194,360,524]:line(side,[(x,412),(x,503)],'#353437',.8)
- st(48,450,str(n),54,weight='number')
- st(220,450,str(made_count),54,weight='number')
- st(386,450,str(n-made_count),54,weight='number')
- st(550,450,f"{(100*made_count/n if n else 0):.1f}%",54,weight='number')
- hline(526)
- st(48,536,'投篮区域',29,weight='bold');st(683,545,'命中 / 出手',18,'#bdb8bb',anchor='ra')
+ st(48,374,job.get('attempt_label','坐标出手' if job.get('missing_coordinate_attempts',0) else '出手'),19,'#aaa6a9')
+ poly(side,[(220,382),(229,382),(229,391),(220,391)],'#e52b4a');st(239,374,'命中',19,'#aaa6a9')
+ poly(side,[(386,382),(395,382),(395,391),(386,391)],'#ede9e3');st(405,374,'未中',19,'#aaa6a9')
+ st(550,374,'投篮命中率',19,'#aaa6a9')
+ for x in [194,360,524]:line(side,[(x,376),(x,467)],'#353437',.8)
+ st(48,414,str(n),54,weight='number')
+ st(220,414,str(made_count),54,weight='number')
+ st(386,414,str(n-made_count),54,weight='number')
+ st(550,414,f"{(100*made_count/n if n else 0):.1f}%",54,weight='number')
+ hline(490)
+ st(48,500,'投篮区域',29,weight='bold');st(683,509,'命中 / 出手',18,'#bdb8bb',anchor='ra')
  # Sidebar uses the same five rules as the ten-zone court.
  coarse_side=np.asarray(counts,dtype=int)
  names=['篮下','短两分','长两分','弧顶及侧翼三分','底角三分'];scale=max(1,job['bar_scale']);max_width=635
  for i,(label,(m,miss)) in enumerate(zip(names,coarse_side)):
-  y=584+i*74;n=int(m+miss);st(48,y,label,23,weight='bold');st(683,y-2,f'{m} / {n}',28,weight='number',anchor='ra')
+  y=548+i*80;n=int(m+miss);st(48,y,label,23,weight='bold');st(683,y-2,f'{m} / {n}',28,weight='number',anchor='ra')
   width=max_width*n/scale if n else 0;by=(y+38)*S;bh=14*S
   if n:
    mask=Image.new('L',(round(width*S),bh));ImageDraw.Draw(mask).rounded_rectangle((0,0,mask.width-1,bh-1),radius=bh/2,fill=255)
@@ -83,9 +88,9 @@ def render(job,rows,counts,n,project,t=0):
    ar=np.asarray(bar).copy().astype(float)
    for yy in range(bh):ar[yy]=np.clip(ar[yy]+18*np.exp(-((yy-bh*.2)/(bh*.26))**2)-7*yy/bh,0,255)
    xx=np.arange(ar.shape[1])/S;centre=-90+((t+i*.26)%4.8)/4.8*(max_width+180)
-  gloss=.10*np.exp(-((xx-centre)/46)**2)
-  ar=np.clip(ar+(255-ar)*gloss[None,:,None],0,255)
-  side.paste(Image.fromarray(ar.astype('uint8')),(48*S,by),mask)
+   gloss=.10*np.exp(-((xx-centre)/46)**2)
+   ar=np.clip(ar+(255-ar)*gloss[None,:,None],0,255)
+   side.paste(Image.fromarray(ar.astype('uint8')),(48*S,by),mask)
   label_width=font(23,'bold').getlength(label)/S
   st(48+label_width+18,y+7,f'{100*m/n:.1f}%' if n else '—',17,'#a9a3a7')
  # Baseline remains in audit and delivery description; no extra text in subtitle band.
