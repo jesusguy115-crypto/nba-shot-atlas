@@ -21,7 +21,16 @@ def main():
  from validate_data import inspect
  report=inspect(project/'shots.csv',r.JOB)
  first=np.ceil(r.starts*r.FPS).astype(int)
- if r.JOB.get('animation_mode')=='season_batch':
+ if r.JOB.get('animation_mode')=='game_batch':
+  groups={}
+  for row,start in zip(r.rows,r.starts):groups.setdefault(str(row['game_id']),set()).add(float(start))
+  assert all(len(v)==1 for v in groups.values()) and len(set(first))==len(groups)
+  assert np.all(first/r.FPS<r.starts+r.TRAVEL)
+  assert np.all(np.ceil((r.starts+r.TRAVEL)*r.FPS)/r.FPS<r.starts+r.LIFE)
+  assert max(r.starts)+r.LIFE<=r.JOB['shot_animation_duration']
+  assert r.state(r.DURATION-1/r.FPS)==r.N
+  report['game_batches']=r.JOB['game_batches'];report['glow_hold_seconds']=r.JOB['glow_hold_seconds']
+ elif r.JOB.get('animation_mode')=='season_batch':
   season_groups={}
   for row,start in zip(r.rows,r.starts):season_groups.setdefault(row['season'],set()).add(float(start))
   assert all(len(v)==1 for v in season_groups.values()) and len(set(first))==len(season_groups)

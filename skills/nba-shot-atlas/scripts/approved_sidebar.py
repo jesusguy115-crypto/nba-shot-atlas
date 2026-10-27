@@ -36,18 +36,23 @@ def render(job,rows,counts,n,project,t=0):
  def hline(y):line(side,[(48,y),(686,y)],'#414144',.8)
  portrait=Image.open(p/job['portrait_image']).convert('RGBA').crop(tuple(job['portrait_crop']));portrait.thumbnail((140*S,160*S),Image.Resampling.LANCZOS);side.paste(portrait,(35*S,104*S),portrait)
  # Name, English secondary title, then a quiet four-column metric row.
- zh_size=48
+ zh_size=48;en_size=20
  zh=ImageFont.truetype(str(p/'fonts/SmileySans-Oblique.ttf'),zh_size*S)
- while zh.getlength(job['name_zh'])>480*S and zh_size>26:
-  zh_size-=1;zh=ImageFont.truetype(str(p/'fonts/SmileySans-Oblique.ttf'),zh_size*S)
+ def english_font(size):
+  f=ImageFont.truetype(str(p/'fonts/NotoSansSC.ttf'),size*S)
+  try:f.set_variation_by_axes([600])
+  except (OSError,ValueError):pass
+  return f
+ en_font=english_font(en_size)
+ while zh.getlength(job['name_zh'])+en_font.getlength(job['name_en'])+(24+1.1*len(job['name_en']))*S>489*S and (zh_size>26 or en_size>14):
+  if zh_size>26:zh_size-=1
+  if en_size>14:en_size-=.25
+  zh=ImageFont.truetype(str(p/'fonts/SmileySans-Oblique.ttf'),round(zh_size*S));en_font=english_font(en_size)
  ImageDraw.Draw(side).text((197*S,108*S),job['name_zh'],font=zh,fill='#f2eee8')
  # Normal-width Latin lettering, with measured tracking instead of condensed numerals.
- en_font=ImageFont.truetype(str(p/'fonts/NotoSansSC.ttf'),24*S)
- try:en_font.set_variation_by_axes([600])
- except (OSError,ValueError):pass
- en_x=200*S;en_tracking=2.0*S
+ en_x=197*S+zh.getlength(job['name_zh'])+24*S;en_tracking=1.1*S
  for ch in job['name_en']:
-  ImageDraw.Draw(side).text((round(en_x),166*S),ch,font=en_font,fill='#a39fa2',anchor='la')
+  ImageDraw.Draw(side).text((round(en_x),132*S),ch,font=en_font,fill='#a39fa2',anchor='la')
   en_x+=en_font.getlength(ch)+en_tracking
  for j,(label,value) in enumerate([('身高',(f"{job['height_cm']:g} cm" if job.get('height_cm') is not None else '—')),('体重',(f"{job['weight_kg']:g} kg" if job.get('weight_kg') is not None else '—')),('年龄',str(age) if age is not None else '—'),(job['league']+'球龄',str(job['league_season_number']) if job.get('league_season_number') else '—')]):
   x=202+j*121
@@ -79,10 +84,11 @@ def render(job,rows,counts,n,project,t=0):
  names=['篮下','短两分','长两分','弧顶及侧翼三分','底角三分'];scale=max(1,job['bar_scale']);max_width=635
  for i,(label,(m,miss)) in enumerate(zip(names,coarse_side)):
   y=548+i*80;n=int(m+miss);st(48,y,label,23,weight='bold');st(683,y-2,f'{m} / {n}',28,weight='number',anchor='ra')
-  width=max_width*n/scale if n else 0;by=(y+38)*S;bh=14*S
-  if n:
+  bm,bmiss=np.asarray(job.get('_bar_counts',counts),dtype=float)[i];bn=bm+bmiss
+  width=max_width*bn/scale;by=(y+38)*S;bh=14*S
+  if width*S>=1:
    mask=Image.new('L',(round(width*S),bh));ImageDraw.Draw(mask).rounded_rectangle((0,0,mask.width-1,bh-1),radius=bh/2,fill=255)
-   bar=Image.new('RGB',mask.size,'#eeeae5');red=round(mask.width*m/n)
+   bar=Image.new('RGB',mask.size,'#eeeae5');red=round(mask.width*bm/bn)
    ImageDraw.Draw(bar).rectangle((0,0,max(0,red-1),bh),fill='#ed314d') if red else None
    # Soft continuous gloss, clipped to the rounded capsule.
    ar=np.asarray(bar).copy().astype(float)
