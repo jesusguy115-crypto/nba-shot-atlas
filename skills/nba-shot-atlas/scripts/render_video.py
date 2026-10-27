@@ -17,6 +17,7 @@ def main():
  job=json.loads((project/'job.json').read_text())
  if job.get('approved_layout_version')!='2026-10-17':subprocess.run([sys.executable,str(Path(__file__).with_name('apply_approved_layout.py')),str(project)],check=True)
  shutil.copy2(Path(__file__).with_name('approved_sidebar.py'),project/'approved_sidebar.py')
+ if job.get('layout_profile')=='reference-full-2026-10-27':shutil.copy2(Path(__file__).with_name('reference_sidebar.py'),project/'reference_sidebar.py')
  r=load(project);import numpy as np
  from validate_data import inspect
  report=inspect(project/'shots.csv',r.JOB)

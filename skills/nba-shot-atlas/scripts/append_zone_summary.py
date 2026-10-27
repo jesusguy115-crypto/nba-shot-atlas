@@ -155,7 +155,14 @@ def main():
  summary_job.setdefault('height_cm',None);summary_job.setdefault('weight_kg',None)
  summary_path=work/'approved-job.json';summary_path.write_text(json.dumps(summary_job,ensure_ascii=False,indent=2))
  subprocess.run([sys.executable,str(Path(__file__).with_name('render_static_summary.py')),'--job',str(summary_path),'--shots',str(p/'shots.csv'),'--league-shots',*[str(v) for v in a.league_shots],'--output',str(work/'approved-static')],check=True)
- approved=Image.open(work/'approved-static/总结页.png').convert('RGB');approved.paste(frozen_left,(0,0));approved.save(work/'总结页.png')
+ approved=Image.open(work/'approved-static/总结页.png').convert('RGB')
+ if job.get('layout_profile')=='reference-full-2026-10-27':
+  scale=1.16;enlarged=approved.resize((round(W*scale),round(H*scale)),Image.Resampling.LANCZOS)
+  ar=np.asarray(enlarged).copy();ar[np.all(ar==[25,25,27],axis=2)]=BG;enlarged=Image.fromarray(ar)
+  approved=Image.new('RGB',(W,H),BG);approved.paste(enlarged,(round((SIDEBAR+W)/2-(1330+job.get('layout_offset_x',69))*scale),-152))
+  # A hard invariant only for output safety, never a visible border or caption strip.
+  ImageDraw.Draw(approved).rectangle((SIDEBAR,936,W,H),fill=BG)
+ approved.paste(frozen_left,(0,0));approved.save(work/'总结页.png')
  chart_rgb=approved.resize((W*S,H*S),Image.Resampling.LANCZOS).convert('RGBA');cards=[]
  # Keep the entire source sidebar pixel-for-pixel stable throughout the reveal.
  base_big=base.resize((W*S,H*S),Image.Resampling.LANCZOS)

@@ -15,9 +15,10 @@ def apply(p,duration=5.,pause=.5,hold=2.):
  j.update(animation_mode='game_batch',shot_animation_duration=duration,batch_pause_seconds=pause,batch_travel_seconds=travel,batch_life_seconds=life,glow_hold_seconds=hold,game_batches=groups,source_duration=duration+hold,delivery_duration=duration+hold,source_fps=60,delivery_fps=60,game_batch_version=1)
  f=p/'render.py';s=f.read_text();a=s.index('# A short, readable') if '# A short, readable' in s else s.index('# One synchronized burst');b=s.index('C=plate.C',a)
  s=s[:a]+"import batch_motion as _batch\nstarts=_batch.timeline(rows,JOB)\nTRAVEL=JOB['batch_travel_seconds'];LIFE=JOB['batch_life_seconds']\n"+s[b:]
- needle=" sidebar=_approved.render(view,rows,zone_prefix[n],n,P,t).resize((736,H),Image.Resampling.LANCZOS)"
+ renderer='_reference' if j.get('layout_profile')=='reference-full-2026-10-27' else '_approved'
+ needle=f" sidebar={renderer}.render(view,rows,zone_prefix[n],n,P,t).resize((736,H),Image.Resampling.LANCZOS)"
  if needle not in s:raise ValueError('Unsupported sidebar wrapper; use a fresh project')
- s=s.replace(needle," display_n,counts,bars=_batch.sidebar_state(t,rows,zone_prefix,deltas,JOB)\n view['_bar_counts']=bars\n sidebar=_approved.render(view,rows,counts,display_n,P,t).resize((736,H),Image.Resampling.LANCZOS)")
+ s=s.replace(needle,f" display_n,counts,bars=_batch.sidebar_state(t,rows,zone_prefix,deltas,JOB)\n view['_bar_counts']=bars\n sidebar={renderer}.render(view,rows,counts,display_n,P,t).resize((736,H),Image.Resampling.LANCZOS)")
  code="""
 # Freeze the final camera for the breathing ground-marker hold; no further arcs.
 _batch_original_frame=frame
